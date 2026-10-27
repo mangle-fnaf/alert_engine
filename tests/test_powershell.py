@@ -1,6 +1,5 @@
 from src.rules import detect_suspicious_powershell
 
-
 def test_encoded_powershell_detected():
 
     logs = [
