@@ -2,9 +2,9 @@ import json
 
 from rules import (
     detect_failed_logins,
-    detect_suspicious_powershell
+    detect_suspicious_powershell,
+    detect_admin_creation
 )
-
 
 def load_logs(filepath):
     with open(filepath, "r") as file:
@@ -24,17 +24,21 @@ def display_alerts(alerts):
         print(f"Title: {alert['title']}")
         print(f"Severity: {alert['severity']}")
 
-        # Only show IP if it exists
-        if "source_ip" in alert:
-            print(f"Source IP: {alert['source_ip']}")
+    # Display source IP if present
+    if "source_ip" in alert:
+        print(f"Source IP: {alert['source_ip']}")
 
-        # Only show command if it exists
-        if "command" in alert:
-            print(f"Command: {alert['command']}")
+    # Display command if present
+    if "command" in alert:
+        print(f"Command: {alert['command']}")
 
-        print(f"Description: {alert['description']}")
+    # Display username if present
+    if "username" in alert:
+        print(f"Username: {alert['username']}")
 
-        print("-" * 40)
+    print(f"Description: {alert['description']}")
+
+    print("-" * 40)
 
 
 def main():
@@ -55,8 +59,14 @@ def main():
         detect_suspicious_powershell(logs)
     )
 
+    #admin creation detection
+    alerts.extend(
+    detect_admin_creation(logs)
+    )
+
     # Display results
     display_alerts(alerts)
+    
 
 
 if __name__ == "__main__":

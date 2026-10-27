@@ -33,7 +33,7 @@ def detect_failed_logins(logs, threshold=5):
 
     return alerts
 
-#powershe
+#powershell
 def detect_suspicious_powershell(logs):
     # Store generated alerts
     alerts = []
@@ -54,6 +54,26 @@ def detect_suspicious_powershell(logs):
                 "severity": "HIGH",
                 "command": log.get("command"),
                 "description": "Encoded PowerShell command detected."
+            })
+
+    return alerts
+
+#detects new admin account creation
+def detect_admin_creation(logs):
+    # Store generated alerts
+    alerts = []
+
+    # Check all log entries
+    for log in logs:
+
+        # Look for admin account creation events
+        if log.get("event_type") == "admin_created":
+
+            alerts.append({
+                "title": "New Administrator Account",
+                "severity": "HIGH",
+                "username": log.get("username"),
+                "description": "Administrator account created."
             })
 
     return alerts
