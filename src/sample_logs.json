@@ -1,22 +1,32 @@
 [
     {
+        "timestamp": "2026-11-01T08:15:00",
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
     },
     {
+        "timestamp": "2026-11-01T08:15:10",
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
     },
     {
+        "timestamp": "2026-11-01T08:15:20",
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
     },
     {
+        "timestamp": "2026-11-01T08:15:30",
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
     },
     {
+        "timestamp": "2026-11-01T08:15:40",
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
+    },
+    {
+        "timestamp": "2026-11-01T09:20:00",
+        "event_type": "process_creation",
+        "command": "powershell.exe -EncodedCommand SQBuAHYAbwBrAGUALQBXAGUAYgBSAGUAcQB1AGUAcwB0AA=="
     }
 ]

@@ -1,29 +1,25 @@
 from collections import Counter
 
 
+#brute force
 def detect_failed_logins(logs, threshold=5):
-    """
-    Detects possible brute-force activity by counting
-    failed login attempts from the same IP.
-    """
-
     # Store generated alerts
     alerts = []
 
-    # Store failed login IPs
+    # Store IPs that fail logins
     failed_ips = []
 
-    # Look through all log entries
+    # Look through all logs
     for log in logs:
 
-        # Check if this event is a failed login
+        # Check for failed login events
         if log.get("event_type") == "failed_login":
             failed_ips.append(log.get("source_ip"))
 
-    # Count how many failed logins each IP has
+    # Count failures per IP
     counts = Counter(failed_ips)
 
-    # Generate alert if threshold is exceeded
+    # Generate alert if threshold exceeded
     for ip, count in counts.items():
 
         if count >= threshold:
@@ -32,8 +28,32 @@ def detect_failed_logins(logs, threshold=5):
                 "title": "Multiple Failed Logins",
                 "severity": "MEDIUM",
                 "source_ip": ip,
-                "description": f"{count} failed login attempts detected.",
-                "mitre_technique": "T1110"
+                "description": f"{count} failed login attempts detected."
+            })
+
+    return alerts
+
+#powershe
+def detect_suspicious_powershell(logs):
+    # Store generated alerts
+    alerts = []
+
+    # Look through all logs
+    for log in logs:
+
+        command = log.get("command", "").lower()
+
+        # Look for encoded PowerShell usage
+        if (
+            "powershell" in command
+            and "encodedcommand" in command
+        ):
+
+            alerts.append({
+                "title": "Suspicious PowerShell Activity",
+                "severity": "HIGH",
+                "command": log.get("command"),
+                "description": "Encoded PowerShell command detected."
             })
 
     return alerts
