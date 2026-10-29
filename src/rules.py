@@ -1,5 +1,10 @@
 from collections import Counter
 
+# example malicious IPs
+MALICIOUS_IPS = [
+    "45.33.22.10",
+    "185.10.10.100"
+]
 
 def calculate_severity(score):
 
@@ -94,6 +99,29 @@ def detect_admin_creation(logs):
                 "severity": calculate_severity(15),
                 "username": log.get("username"),
                 "description": "Administrator account created."
+            })
+
+    return alerts
+
+# ioc matching
+def detect_ioc_match(logs):
+
+    # Store generated alerts
+    alerts = []
+
+    # Go through logs
+    for log in logs:
+
+        ip = log.get("source_ip")
+
+        if ip in MALICIOUS_IPS:
+
+            alerts.append({
+                "title": "Known Malicious IP",
+                "score": 20,
+                "severity": calculate_severity(20),
+                "source_ip": ip,
+                "description": "IP matched threat intelligence feed."
             })
 
     return alerts

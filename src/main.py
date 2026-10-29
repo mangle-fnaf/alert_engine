@@ -3,9 +3,9 @@ import json
 from rules import (
     detect_failed_logins,
     detect_suspicious_powershell,
-    detect_admin_creation
+    detect_admin_creation,
+    detect_ioc_match
 )
-
 
 def load_logs(filepath):
 
@@ -62,6 +62,11 @@ def main():
     # Run admin creation detection
     alerts.extend(
         detect_admin_creation(logs)
+    )
+
+    # Run IOC matching
+    alerts.extend(
+        detect_ioc_match(logs)
     )
 
     # Display results

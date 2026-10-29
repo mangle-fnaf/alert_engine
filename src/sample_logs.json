@@ -24,18 +24,22 @@
         "event_type": "failed_login",
         "source_ip": "10.0.0.5"
     },
-
     {
         "timestamp": "2026-11-01T09:20:00",
         "event_type": "process_creation",
         "hostname": "WIN-01",
         "command": "powershell.exe -EncodedCommand SQBuAHYAbwBrAGUALQBXAGUAYgBSAGUAcQB1AGUAcwB0AA=="
     },
-
     {
         "timestamp": "2026-11-01T10:05:00",
         "event_type": "admin_created",
         "username": "temp_admin",
         "host": "DC01"
+    },
+    {
+        "timestamp": "2026-11-01T11:30:00",
+        "event_type": "network_connection",
+        "source_ip": "45.33.22.10",
+        "destination_port": 443
     }
 ]
