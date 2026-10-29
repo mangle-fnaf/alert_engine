@@ -26,6 +26,7 @@ def display_alerts(alerts):
         print(f"Title: {alert['title']}")
         print(f"Score: {alert['score']}")
         print(f"Severity: {alert['severity']}")
+        print(f"MITRE: {alert['mitre']}")
 
         if "source_ip" in alert:
             print(f"Source IP: {alert['source_ip']}")

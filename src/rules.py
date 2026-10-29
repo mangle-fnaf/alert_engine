@@ -1,10 +1,13 @@
 from collections import Counter
 
-# example malicious IPs
-MALICIOUS_IPS = [
-    "45.33.22.10",
-    "185.10.10.100"
-]
+
+MITRE_MAPPINGS = {
+    "Multiple Failed Logins": "T1110",
+    "Suspicious PowerShell Activity": "T1059",
+    "New Administrator Account": "T1136",
+    "Known Malicious IP": "T1071"
+}
+
 
 def calculate_severity(score):
 
@@ -18,6 +21,14 @@ def calculate_severity(score):
         return "MEDIUM"
 
     return "LOW"
+
+
+def get_mitre(alert_title):
+
+    return MITRE_MAPPINGS.get(
+        alert_title,
+        "Unknown"
+    )
 
 
 # brute force
@@ -47,6 +58,7 @@ def detect_failed_logins(logs, threshold=5):
                 "title": "Multiple Failed Logins",
                 "score": 5,
                 "severity": calculate_severity(5),
+                "mitre": get_mitre("Multiple Failed Logins"),
                 "source_ip": ip,
                 "description": f"{count} failed login attempts detected."
             })
@@ -75,6 +87,7 @@ def detect_suspicious_powershell(logs):
                 "title": "Suspicious PowerShell Activity",
                 "score": 10,
                 "severity": calculate_severity(10),
+                "mitre": get_mitre("Suspicious PowerShell Activity"),
                 "command": log.get("command"),
                 "description": "Encoded PowerShell command detected."
             })
@@ -97,11 +110,20 @@ def detect_admin_creation(logs):
                 "title": "New Administrator Account",
                 "score": 15,
                 "severity": calculate_severity(15),
+                "mitre": get_mitre("New Administrator Account"),
                 "username": log.get("username"),
                 "description": "Administrator account created."
             })
 
     return alerts
+
+
+# known malicious IPs
+MALICIOUS_IPS = [
+    "45.33.22.10",
+    "185.10.10.100"
+]
+
 
 # ioc matching
 def detect_ioc_match(logs):
@@ -120,6 +142,7 @@ def detect_ioc_match(logs):
                 "title": "Known Malicious IP",
                 "score": 20,
                 "severity": calculate_severity(20),
+                "mitre": get_mitre("Known Malicious IP"),
                 "source_ip": ip,
                 "description": "IP matched threat intelligence feed."
             })
