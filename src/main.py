@@ -7,6 +7,7 @@ from rules import (
     detect_ioc_match
 )
 
+
 def load_logs(filepath):
 
     with open(filepath, "r") as file:
@@ -42,6 +43,17 @@ def display_alerts(alerts):
         print("-" * 40)
 
 
+def save_alerts(alerts):
+
+    with open("alerts.json", "w") as file:
+
+        json.dump(
+            alerts,
+            file,
+            indent=4
+        )
+
+
 def main():
 
     # Load sample log file
@@ -69,6 +81,9 @@ def main():
     alerts.extend(
         detect_ioc_match(logs)
     )
+
+    # Save alerts
+    save_alerts(alerts)
 
     # Display results
     display_alerts(alerts)

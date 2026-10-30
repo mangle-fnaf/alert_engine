@@ -1,0 +1,34 @@
+[
+    {
+        "title": "Multiple Failed Logins",
+        "score": 5,
+        "severity": "MEDIUM",
+        "mitre": "T1110",
+        "source_ip": "10.0.0.5",
+        "description": "5 failed login attempts detected."
+    },
+    {
+        "title": "Suspicious PowerShell Activity",
+        "score": 10,
+        "severity": "HIGH",
+        "mitre": "T1059",
+        "command": "powershell.exe -EncodedCommand SQBuAHYAbwBrAGUALQBXAGUAYgBSAGUAcQB1AGUAcwB0AA==",
+        "description": "Encoded PowerShell command detected."
+    },
+    {
+        "title": "New Administrator Account",
+        "score": 15,
+        "severity": "HIGH",
+        "mitre": "T1136",
+        "username": "temp_admin",
+        "description": "Administrator account created."
+    },
+    {
+        "title": "Known Malicious IP",
+        "score": 20,
+        "severity": "CRITICAL",
+        "mitre": "T1071",
+        "source_ip": "45.33.22.10",
+        "description": "IP matched threat intelligence feed."
+    }
+]
