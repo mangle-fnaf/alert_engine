@@ -148,3 +148,53 @@ def detect_ioc_match(logs):
             })
 
     return alerts
+
+MITRE_MAPPINGS = {
+    "Multiple Failed Logins": "T1110",
+    "Suspicious PowerShell Activity": "T1059",
+    "New Administrator Account": "T1136",
+    "Known Malicious IP": "T1071",
+    "Possible Account Compromise": "T1078"
+}
+
+# attack correlation
+def detect_account_compromise(logs):
+
+    failed_login = False
+    successful_login = False
+    admin_created = False
+
+    # Go through logs
+    for log in logs:
+
+        if log.get("event_type") == "failed_login":
+            failed_login = True
+
+        if log.get("event_type") == "successful_login":
+            successful_login = True
+
+        if log.get("event_type") == "admin_created":
+            admin_created = True
+
+    # Look for attack chain
+    if (
+        failed_login and
+        successful_login and
+        admin_created
+    ):
+
+        return [{
+            "title": "Possible Account Compromise",
+            "score": 25,
+            "severity": calculate_severity(25),
+            "mitre": get_mitre(
+                "Possible Account Compromise"
+            ),
+            "description": (
+                "Failed logins followed by "
+                "successful authentication and "
+                "administrator account creation."
+            )
+        }]
+
+    return []

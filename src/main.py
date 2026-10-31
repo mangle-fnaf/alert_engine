@@ -4,7 +4,8 @@ from rules import (
     detect_failed_logins,
     detect_suspicious_powershell,
     detect_admin_creation,
-    detect_ioc_match
+    detect_ioc_match,
+    detect_account_compromise
 )
 
 
@@ -80,6 +81,11 @@ def main():
     # Run IOC matching
     alerts.extend(
         detect_ioc_match(logs)
+    )
+
+    # Run attack correlation
+    alerts.extend(
+        detect_account_compromise(logs)
     )
 
     # Save alerts
