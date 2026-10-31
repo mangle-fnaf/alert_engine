@@ -5,7 +5,8 @@ from rules import (
     detect_suspicious_powershell,
     detect_admin_creation,
     detect_ioc_match,
-    detect_account_compromise
+    detect_account_compromise,
+    generate_timeline
 )
 
 
@@ -42,6 +43,18 @@ def display_alerts(alerts):
         print(f"Description: {alert['description']}")
 
         print("-" * 40)
+
+
+def display_timeline(timeline):
+
+    print("\n=== ATTACK TIMELINE ===\n")
+
+    for event in timeline:
+
+        print(
+            f"{event['timestamp']} - "
+            f"{event['event']}"
+        )
 
 
 def save_alerts(alerts):
@@ -90,6 +103,12 @@ def main():
 
     # Save alerts
     save_alerts(alerts)
+
+    # Generate timeline
+    timeline = generate_timeline(logs)
+
+    # Display timeline
+    display_timeline(timeline)
 
     # Display results
     display_alerts(alerts)

@@ -198,3 +198,31 @@ def detect_account_compromise(logs):
         }]
 
     return []
+
+# timeline generation
+def generate_timeline(logs):
+
+    timeline = []
+
+    # Sort logs by timestamp
+    sorted_logs = sorted(
+        logs,
+        key=lambda log: log.get(
+            "timestamp",
+            ""
+        )
+    )
+
+    # Build timeline
+    for log in sorted_logs:
+
+        timeline.append({
+            "timestamp": log.get(
+                "timestamp"
+            ),
+            "event": log.get(
+                "event_type"
+            )
+        })
+
+    return timeline
