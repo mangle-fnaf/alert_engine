@@ -5,8 +5,15 @@ MITRE_MAPPINGS = {
     "Multiple Failed Logins": "T1110",
     "Suspicious PowerShell Activity": "T1059",
     "New Administrator Account": "T1136",
-    "Known Malicious IP": "T1071"
+    "Known Malicious IP": "T1071",
+    "Possible Account Compromise": "T1078"
 }
+
+
+MALICIOUS_IPS = [
+    "45.33.22.10",
+    "185.10.10.100"
+]
 
 
 def calculate_severity(score):
@@ -34,22 +41,17 @@ def get_mitre(alert_title):
 # brute force
 def detect_failed_logins(logs, threshold=5):
 
-    # Store generated alerts
     alerts = []
 
-    # Store failed IPs
     failed_ips = []
 
-    # Go through logs
     for log in logs:
 
         if log.get("event_type") == "failed_login":
             failed_ips.append(log.get("source_ip"))
 
-    # Count failed attempts
     counts = Counter(failed_ips)
 
-    # Generate alert if threshold is reached
     for ip, count in counts.items():
 
         if count >= threshold:
@@ -69,15 +71,12 @@ def detect_failed_logins(logs, threshold=5):
 # powershell
 def detect_suspicious_powershell(logs):
 
-    # Store generated alerts
     alerts = []
 
-    # Go through logs
     for log in logs:
 
         command = log.get("command", "").lower()
 
-        # Check for encoded PowerShell
         if (
             "powershell" in command and
             "encodedcommand" in command
@@ -98,10 +97,8 @@ def detect_suspicious_powershell(logs):
 # detects new admin account creation
 def detect_admin_creation(logs):
 
-    # Store generated alerts
     alerts = []
 
-    # Go through logs
     for log in logs:
 
         if log.get("event_type") == "admin_created":
@@ -118,20 +115,11 @@ def detect_admin_creation(logs):
     return alerts
 
 
-# known malicious IPs
-MALICIOUS_IPS = [
-    "45.33.22.10",
-    "185.10.10.100"
-]
-
-
 # ioc matching
 def detect_ioc_match(logs):
 
-    # Store generated alerts
     alerts = []
 
-    # Go through logs
     for log in logs:
 
         ip = log.get("source_ip")
@@ -149,13 +137,6 @@ def detect_ioc_match(logs):
 
     return alerts
 
-MITRE_MAPPINGS = {
-    "Multiple Failed Logins": "T1110",
-    "Suspicious PowerShell Activity": "T1059",
-    "New Administrator Account": "T1136",
-    "Known Malicious IP": "T1071",
-    "Possible Account Compromise": "T1078"
-}
 
 # attack correlation
 def detect_account_compromise(logs):
@@ -164,7 +145,6 @@ def detect_account_compromise(logs):
     successful_login = False
     admin_created = False
 
-    # Go through logs
     for log in logs:
 
         if log.get("event_type") == "failed_login":
@@ -176,7 +156,6 @@ def detect_account_compromise(logs):
         if log.get("event_type") == "admin_created":
             admin_created = True
 
-    # Look for attack chain
     if (
         failed_login and
         successful_login and
@@ -199,12 +178,12 @@ def detect_account_compromise(logs):
 
     return []
 
+
 # timeline generation
 def generate_timeline(logs):
 
     timeline = []
 
-    # Sort logs by timestamp
     sorted_logs = sorted(
         logs,
         key=lambda log: log.get(
@@ -213,16 +192,31 @@ def generate_timeline(logs):
         )
     )
 
-    # Build timeline
     for log in sorted_logs:
 
         timeline.append({
-            "timestamp": log.get(
-                "timestamp"
-            ),
-            "event": log.get(
-                "event_type"
-            )
+            "timestamp": log.get("timestamp"),
+            "event": log.get("event_type")
         })
 
     return timeline
+
+
+# alert statistics
+def generate_alert_stats(alerts):
+
+    stats = {
+        "total": len(alerts),
+        "LOW": 0,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 0
+    }
+
+    for alert in alerts:
+
+        severity = alert["severity"]
+
+        stats[severity] += 1
+
+    return stats

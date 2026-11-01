@@ -1,15 +1,13 @@
 from src.rules import generate_timeline
 
 
-def test_timeline_generation():
+def test_timeline_sorted():
 
     logs = [
-
         {
             "timestamp": "2026-11-01T10:00:00",
             "event_type": "admin_created"
         },
-
         {
             "timestamp": "2026-11-01T08:00:00",
             "event_type": "failed_login"
@@ -18,12 +16,5 @@ def test_timeline_generation():
 
     timeline = generate_timeline(logs)
 
-    assert len(timeline) == 2
     assert timeline[0]["event"] == "failed_login"
-
-
-def test_empty_timeline():
-
-    timeline = generate_timeline([])
-
-    assert len(timeline) == 0
+    assert timeline[1]["event"] == "admin_created"

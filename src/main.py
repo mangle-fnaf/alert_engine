@@ -6,7 +6,8 @@ from rules import (
     detect_admin_creation,
     detect_ioc_match,
     detect_account_compromise,
-    generate_timeline
+    generate_timeline,
+    generate_alert_stats
 )
 
 
@@ -55,6 +56,17 @@ def display_timeline(timeline):
             f"{event['timestamp']} - "
             f"{event['event']}"
         )
+
+
+def display_stats(stats):
+
+    print("\n=== ALERT STATISTICS ===\n")
+
+    print(f"Total Alerts: {stats['total']}")
+    print(f"LOW: {stats['LOW']}")
+    print(f"MEDIUM: {stats['MEDIUM']}")
+    print(f"HIGH: {stats['HIGH']}")
+    print(f"CRITICAL: {stats['CRITICAL']}")
 
 
 def save_alerts(alerts):
@@ -160,6 +172,12 @@ def main():
 
     # Display timeline
     display_timeline(timeline)
+
+    # Generate alert statistics
+    stats = generate_alert_stats(alerts)
+
+    # Display statistics
+    display_stats(stats)
 
     # Display results
     display_alerts(alerts)
