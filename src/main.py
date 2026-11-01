@@ -68,6 +68,54 @@ def save_alerts(alerts):
         )
 
 
+def generate_incident_report(alerts):
+
+    with open(
+        "incident_report.txt",
+        "w"
+    ) as file:
+
+        file.write(
+            "=== INCIDENT REPORT ===\n\n"
+        )
+
+        file.write(
+            f"Total Alerts: {len(alerts)}\n\n"
+        )
+
+        file.write(
+            "Critical Alerts:\n"
+        )
+
+        for alert in alerts:
+
+            if alert["severity"] == "CRITICAL":
+
+                file.write(
+                    f"- {alert['title']}\n"
+                )
+
+        file.write(
+            "\nMITRE Techniques:\n"
+        )
+
+        techniques = set()
+
+        for alert in alerts:
+
+            techniques.add(
+                alert["mitre"]
+            )
+
+        for technique in sorted(
+            techniques
+        ):
+
+            file.write(
+                f"- {technique}\n"
+            )
+
+
 def main():
 
     # Load sample log file
@@ -103,6 +151,9 @@ def main():
 
     # Save alerts
     save_alerts(alerts)
+
+    # Generate incident report
+    generate_incident_report(alerts)
 
     # Generate timeline
     timeline = generate_timeline(logs)

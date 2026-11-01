@@ -1,0 +1,14 @@
+=== INCIDENT REPORT ===
+
+Total Alerts: 6
+
+Critical Alerts:
+- Known Malicious IP
+- Possible Account Compromise
+
+MITRE Techniques:
+- T1110
+- T1059
+- T1136
+- T1071
+- T1078
