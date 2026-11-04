@@ -36,17 +36,18 @@ The project was built to develop skills in detection engineering, threat hunting
 ## Project Structure
 
 ```text
-alert-engine/
+alert_engine/
 │
 ├── src/
-│   ├── main.py
-│   ├── rules.py
-│   ├── sample_logs.json
-│   ├── alerts.json
-│   └── incident_report.txt
+│   ├── main.py                 # Runs the engine and writes the outputs
+│   ├── rules.py                # Detection rules, correlation, timeline and statistics
+│   ├── sample_logs.json        # Sample security events
+│   ├── alerts.json             # Generated when the engine runs (not uploaded)
+│   └── incident_report.txt     # Generated when the engine runs (not uploaded)
 │
-├── tests/
-│
+├── tests/                      # Unit tests for every detection and output
+├── Screenshots/
+├── requirements.txt
 └── README.md
 ```
 
@@ -139,12 +140,20 @@ The engine can correlate multiple events into a single security incident.
 Example attack path:
 
 ```text
-Failed Login
+Several Failed Logins (same IP)
 ↓
-Successful Login
+Successful Login (same IP)
 ↓
-Administrator Account Creation
+Administrator Account Creation (within 60 minutes)
 ```
+
+To avoid false alarms, the alert is only raised when:
+
+- At least 3 failed logins come from the same IP address
+- The successful login comes from that same IP, after the failed attempts
+- An administrator account is created within 60 minutes of the successful login
+
+This means normal activity, such as one mistyped password or an administrator account created earlier in the day, is not flagged as a compromise.
 
 Generated Alert:
 
@@ -203,23 +212,49 @@ Critical Alerts:
 
 ## Running The Project
 
-Navigate to the src folder:
+Clone the repository:
 
 ```bash
-cd src
+git clone https://github.com/mangle-fnaf/alert_engine.git
+cd alert_engine
 ```
 
-Run the alert engine:
+Run the alert engine (no extra packages are needed):
 
 ```bash
-python main.py
+python src/main.py
 ```
 
-Run the tests:
+The engine reads `src/sample_logs.json` and saves `alerts.json` and `incident_report.txt` in the `src` folder.
+
+Run the tests from the main project folder:
 
 ```bash
-pytest -v
+pip install -r requirements.txt
+python -m pytest -v
 ```
+
+Run the tests with coverage:
+
+```bash
+python -m pytest --cov=src --cov-report=term-missing
+```
+
+---
+
+## Screenshots
+
+### Running the engine
+
+![Running the alert engine](Screenshots/Running_code_1.png)
+
+![Alert output](Screenshots/Running_code_2.png)
+
+### Tests and coverage
+
+![Tests passing](Screenshots/Running_tests.png)
+
+![Test coverage](Screenshots/Test_coverage.png)
 
 ---
 
@@ -233,6 +268,14 @@ pytest -v
 - Incident Response
 - Security Automation
 - Unit Testing
+
+---
+
+## Limitations
+
+- The malicious IP list is hard-coded in `rules.py` rather than loaded from a live threat intelligence feed.
+- Logs are read from a JSON file in batches rather than monitored in real time.
+- Failed login detection counts attempts across the whole log rather than within a time window.
 
 ---
 

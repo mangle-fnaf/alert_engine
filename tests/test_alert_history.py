@@ -1,16 +1,6 @@
 import json
-from pathlib import Path
 
-
-def save_alerts(alerts, path):
-
-    with open(path, "w") as file:
-
-        json.dump(
-            alerts,
-            file,
-            indent=4
-        )
+from src.main import save_alerts
 
 
 def test_alert_file_created(tmp_path):

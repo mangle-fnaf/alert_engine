@@ -1,4 +1,5 @@
 from collections import Counter
+from datetime import datetime, timedelta
 
 
 MITRE_MAPPINGS = {
@@ -139,44 +140,84 @@ def detect_ioc_match(logs):
 
 
 # attack correlation
-def detect_account_compromise(logs):
+# Only raises an alert when the events happen in the order an attacker would perform them:
+#   1. several failed logins from one IP address
+#   2. then a successful login from that SAME IP address
+#   3. then an administrator account created shortly afterwards
+# Checking the order, the IP and the timing stops normal activity
+# (e.g. a mistyped password and an unrelated admin account) being flagged.
+def parse_timestamp(log):
 
-    failed_login = False
-    successful_login = False
-    admin_created = False
+    try:
+        return datetime.fromisoformat(log.get("timestamp", ""))
+    except (TypeError, ValueError):
+        return None
+
+
+def detect_account_compromise(logs, min_failed=3, window_minutes=60):
+
+    # Only use events that have a valid timestamp, sorted oldest first
+    events = []
 
     for log in logs:
 
-        if log.get("event_type") == "failed_login":
-            failed_login = True
+        timestamp = parse_timestamp(log)
 
-        if log.get("event_type") == "successful_login":
-            successful_login = True
+        if timestamp is not None:
+            events.append((timestamp, log))
 
-        if log.get("event_type") == "admin_created":
-            admin_created = True
+    events.sort(key=lambda item: item[0])
 
-    if (
-        failed_login and
-        successful_login and
-        admin_created
-    ):
+    alerts = []
+    failed_counts = Counter()
 
-        return [{
-            "title": "Possible Account Compromise",
-            "score": 25,
-            "severity": calculate_severity(25),
-            "mitre": get_mitre(
-                "Possible Account Compromise"
-            ),
-            "description": (
-                "Failed logins followed by "
-                "successful authentication and "
-                "administrator account creation."
-            )
-        }]
+    for index, (timestamp, log) in enumerate(events):
 
-    return []
+        event_type = log.get("event_type")
+        ip = log.get("source_ip")
+
+        if event_type == "failed_login" and ip:
+            failed_counts[ip] += 1
+            continue
+
+        # A successful login only matters if that IP failed several times first
+        if event_type != "successful_login" or failed_counts[ip] < min_failed:
+            continue
+
+        deadline = timestamp + timedelta(minutes=window_minutes)
+
+        # Look for an admin account created soon after the successful login
+        for later_time, later_log in events[index + 1:]:
+
+            if later_time > deadline:
+                break
+
+            if later_log.get("event_type") == "admin_created":
+
+                alerts.append({
+                    "title": "Possible Account Compromise",
+                    "score": 25,
+                    "severity": calculate_severity(25),
+                    "mitre": get_mitre(
+                        "Possible Account Compromise"
+                    ),
+                    "source_ip": ip,
+                    "username": later_log.get("username"),
+                    "description": (
+                        f"{failed_counts[ip]} failed logins from {ip}, "
+                        f"followed by a successful login and "
+                        f"administrator account creation within "
+                        f"{window_minutes} minutes."
+                    )
+                })
+
+                # One alert per compromised login is enough
+                break
+
+        # Reset the count so the same failed logins aren't reused
+        failed_counts[ip] = 0
+
+    return alerts
 
 
 # timeline generation

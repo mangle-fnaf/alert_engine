@@ -1,4 +1,5 @@
 import json
+import os
 
 from rules import (
     detect_failed_logins,
@@ -9,6 +10,15 @@ from rules import (
     generate_timeline,
     generate_alert_stats
 )
+
+
+# Build file paths from this file's location so the engine works
+# no matter which folder it is run from
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOG_FILE = os.path.join(SRC_DIR, "sample_logs.json")
+ALERTS_FILE = os.path.join(SRC_DIR, "alerts.json")
+REPORT_FILE = os.path.join(SRC_DIR, "incident_report.txt")
 
 
 def load_logs(filepath):
@@ -69,9 +79,9 @@ def display_stats(stats):
     print(f"CRITICAL: {stats['CRITICAL']}")
 
 
-def save_alerts(alerts):
+def save_alerts(alerts, path=ALERTS_FILE):
 
-    with open("alerts.json", "w") as file:
+    with open(path, "w") as file:
 
         json.dump(
             alerts,
@@ -80,10 +90,10 @@ def save_alerts(alerts):
         )
 
 
-def generate_incident_report(alerts):
+def generate_incident_report(alerts, path=REPORT_FILE):
 
     with open(
-        "incident_report.txt",
+        path,
         "w"
     ) as file:
 
@@ -131,7 +141,7 @@ def generate_incident_report(alerts):
 def main():
 
     # Load sample log file
-    logs = load_logs("sample_logs.json")
+    logs = load_logs(LOG_FILE)
 
     # Store all generated alerts
     alerts = []
